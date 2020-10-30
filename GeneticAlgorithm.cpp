@@ -20,6 +20,10 @@ void GeneticAlgorithm::reset(int populationSize,float elitismRatio,float mutatio
     GeneticAlgorithm::sporadicRatio = sporadicRatio;
 }
 
+class TravellingSalesman : public GeneticAlgorithm{
+    
+};
+
 main(){
     char c;
     std::cin >> c;
