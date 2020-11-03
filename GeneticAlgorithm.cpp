@@ -191,16 +191,29 @@ class TravellingSalesman : public GeneticAlgorithm{
                float funcionX;
                float funcionY;
                
-               float recorrido = 0.0;
             
             for (int p=0; p<populationSize; p++) {
+                float recorrido = 0.0;
                 float*** punteroIndiv = &matriz[p];
                 std::cout<< "puntero: "<< punteroIndiv;
                 std::cout << std::endl;
                 
                 float ciudadUnoX = matriz[p][0][0];
                 float ciudadUnoY = matriz[p][0][1];
-               for (int x=0; x<15; x++) {
+               for (int x=1; x<=citiesQuantity; x++) {
+                   if (x==citiesQuantity) {
+                       coorY = matriz[p][0][1];
+                       coorX = matriz[p][0][0];
+                       
+                       funcionX = pow((coorX-ciudadUnoX), 2);
+                       funcionY = pow ((coorY-ciudadUnoY), 2);
+                       recorrido = recorrido + sqrt(funcionX+funcionY);
+                       std::cout<<"recorrido: "<<recorrido;
+                       std::cout << std::endl;
+                       
+                       lista->push(punteroIndiv, recorrido);
+                   }else{
+                   
                    coorX = matriz[p][x][0];
                    coorY = matriz[p][x][1];
                    
@@ -210,23 +223,8 @@ class TravellingSalesman : public GeneticAlgorithm{
                    
                    ciudadUnoY = coorY;
                    ciudadUnoX = coorX;
-                   
-                   if (x==populationSize) {
-                       coorY = matriz[p][x][1];
-                       coorX = matriz[p][x][0];
-                       
-                       ciudadUnoY = matriz[p][0][1];
-                       ciudadUnoX = matriz[p][0][0];
-                       
-                       funcionX = pow((ciudadUnoX-coorX), 2);
-                       funcionY = pow ((ciudadUnoY-coorY), 2);
-                       recorrido = recorrido + sqrt(funcionX+funcionY);
-                       std::cout<<"recorrido: "<<recorrido;
-                       std::cout << std::endl;
-                       
-                       lista->push(punteroIndiv, recorrido);
                    }
-                   }
+               }
            }
         }
 
