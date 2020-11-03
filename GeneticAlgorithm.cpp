@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <math.h>
 #include "GeneticAlgorithm.h"
 
 
@@ -26,7 +27,7 @@ private:
         }
     };
     Nodo *cabeza, *ultimo;
-    unsigned int tamaño;
+    unsigned int tamano;
 public:
     
     void ordenar(){
@@ -59,15 +60,15 @@ public:
     Cola(){
         cabeza= new Nodo();
         ultimo= cabeza;
-        tamaño=0;
+        tamano=0;
     }
-    unsigned int getTamaño(){
-        return tamaño;
+    unsigned int getTamano(){
+        return tamano;
     }
     void push (float*** d, int p){
      ultimo ->siguiente = new Nodo(d, p);
     ultimo = ultimo->siguiente;
-        tamaño++;
+        tamano++;
        ordenar();
         
     }
@@ -95,36 +96,30 @@ void GeneticAlgorithm::reset(int populationSize,float elitismRatio,float mutatio
 class TravellingSalesman : public GeneticAlgorithm{
     private:
         int citiesQuantity;
-        float cities[][2];
+        float** cities;
     public:
-        TravellingSalesman(int populationSize,float elitismRatio,float mutationRatio,float sporadicRatio) : GeneticAlgorithm(populationSize, elitismRatio, mutationRatio, sporadicRatio){
-            float cities[15][2] = {
-                {0.0,        0.0},
-                {-28.8733,    0.0},
-                {-79.2916,    -21.4033},
-                  {-14.6577,    -43.3896},
-                  {-64.7473,     21.8982},
-                  {-29.0585,    -43.2167},
-                  {-72.0785,    0.181581},
-                  {-36.0366,    -21.6135},
-                  {-50.4808,     7.37447},
-                  {-50.5859,    -21.5882},
-                 {-0.135819,    -28.7293},
-                  {-65.0866,    -36.0625},
-                  {-21.4983,     7.31942},
-                  {-57.5687,    -43.2506},
-                  {-43.0700,     14.5548}
-                };
-            citiesQuantity = sizeof(cities)/sizeof(cities[0]);
+        TravellingSalesman(float matrix[][2],int citiesQ,int populationSize,float elitismRatio,float mutationRatio,float sporadicRatio) : GeneticAlgorithm(populationSize, elitismRatio, mutationRatio, sporadicRatio){
+            citiesQuantity = citiesQ;
+            cities = new float*[citiesQuantity];
+            for(int i = 0; i < citiesQuantity; i++){
+                cities[i] = new float [2];
+                for(int j = 0; j < 2; j++){
+                    cities[i][j] = matrix[i][j];
+                }
+            }
             for(int i = 0; i < citiesQuantity; i++){
                 for(int j = 0; j < 2; j++){
                     std::cout << cities[i][j] << " ";
                 }
                 std::cout << std::endl;
             }
-            solutions(cities, populationSize, citiesQuantity);
+            solutions();
         }
         ~TravellingSalesman(){
+            for(int i = 0; i < citiesQuantity; i++){
+                delete[] cities[i];
+            }
+            delete[] cities;
         }
         void reset(int populationSize,float elitismRatio,float mutationRatio,float sporadicRatio){
             GeneticAlgorithm::reset(populationSize, elitismRatio, mutationRatio, sporadicRatio);
@@ -138,7 +133,7 @@ class TravellingSalesman : public GeneticAlgorithm{
         void drawBestIndividual(float** points,unsigned int &numPoints){
             
         }
-        void solutions(float cities[][2], int populationSize, int citiesQuantity){
+        void solutions(){
             int randNum = 0;
             float temp = 0;
             float*** individuals = new float**[populationSize];
@@ -177,9 +172,6 @@ class TravellingSalesman : public GeneticAlgorithm{
             }
             fitness(individuals);
         }
-        void swap(float cities[][2], float*** individuals){
-                
-        }
         void selection(){}
         void crossover(){}
         void mutation(){}
@@ -200,7 +192,7 @@ class TravellingSalesman : public GeneticAlgorithm{
                 
                 float ciudadUnoX = matriz[p][0][0];
                 float ciudadUnoY = matriz[p][0][1];
-               for (int x=1; x<=citiesQuantity; x++) {
+                for (int x=1; x<=citiesQuantity; x++) {
                    if (x==citiesQuantity) {
                        coorY = matriz[p][0][1];
                        coorX = matriz[p][0][0];
@@ -235,21 +227,21 @@ int main(){
     {0.0,        0.0},
     {-28.8733,    0.0},
     {-79.2916,    -21.4033},
-      {-14.6577,    -43.3896},
-      {-64.7473,     21.8982},
-      {-29.0585,    -43.2167},
-      {-72.0785,    0.181581},
-      {-36.0366,    -21.6135},
-      {-50.4808,     7.37447},
-      {-50.5859,    -21.5882},
-     {-0.135819,    -28.7293},
-      {-65.0866,    -36.0625},
-      {-21.4983,     7.31942},
-      {-57.5687,    -43.2506},
-      {-43.0700,     14.5548}
+    {-14.6577,    -43.3896},
+    {-64.7473,     21.8982},
+    {-29.0585,    -43.2167},
+    {-72.0785,    0.181581},
+    {-36.0366,    -21.6135},
+    {-50.4808,     7.37447},
+    {-50.5859,    -21.5882},
+    {-0.135819,    -28.7293},
+    {-65.0866,    -36.0625},
+    {-21.4983,     7.31942},
+    {-57.5687,    -43.2506},
+    {-43.0700,     14.5548}
     };
-    //int citiesQ = sizeof(caseLAU15)/sizeof(caseLAU15[0]);
-    TravellingSalesman* travellingSalesman = new TravellingSalesman(5,2.0f,3.0f,4.0f);
+    int citiesQ = sizeof(caseLAU15)/sizeof(caseLAU15[0]);
+    TravellingSalesman* travellingSalesman = new TravellingSalesman(caseLAU15,citiesQ,100,2.0f,3.0f,4.0f);
     char c;
     std::cin >> c;
     return 0;
