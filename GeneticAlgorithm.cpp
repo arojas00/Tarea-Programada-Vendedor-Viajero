@@ -1,5 +1,103 @@
 #include <iostream>
+#include <cstdlib>
+#include <math.h>
 #include "GeneticAlgorithm.h"
+
+
+
+class Cola {
+private:
+    class Nodo{
+        public:
+        Nodo* siguiente;
+        float*** dato;
+        float prioridad;
+        Nodo(){
+            siguiente=0;
+        }
+        Nodo(float*** dato, int prioridad){
+            this->dato = dato;
+            siguiente =0;
+            this -> prioridad =prioridad;
+        }
+        ~Nodo(){
+            if (siguiente != 0) {
+                delete siguiente;
+            }
+        }
+    };
+    Nodo *cabeza, *ultimo;
+    unsigned int tamano;
+public:
+    
+    void ordenar(){
+        Nodo *temp ;
+        Nodo *temp2 ;
+        float*** tempDato;
+        int tempPrioridad;
+        
+        temp = cabeza->siguiente;
+        
+        while (temp->siguiente != NULL) {
+            temp2 = temp -> siguiente;
+            while (temp2 != NULL) {
+                if (temp->prioridad >= temp2 ->prioridad) {
+                    tempDato = temp->dato;
+                    tempPrioridad = temp -> prioridad;
+                    
+                    temp->dato = temp2->dato;
+                    temp->prioridad =temp2->prioridad;
+                    
+                    temp2 ->dato =tempDato;
+                    temp2->prioridad =tempPrioridad;
+
+                }
+                temp2 = temp2 -> siguiente;
+            }
+            temp = temp->siguiente;
+        }
+    }
+    Cola(){
+        cabeza= new Nodo();
+        ultimo= cabeza;
+        tamano=0;
+    }
+    unsigned int getTamano(){
+        return tamano;
+    }
+    void push (float*** d, int p){
+     ultimo ->siguiente = new Nodo(d, p);
+    ultimo = ultimo->siguiente;
+        tamano++;
+       ordenar();
+        
+    }
+    
+    float*** get(int index){
+            if(tamano==0){
+                //return??
+            }
+            Nodo*temp = cabeza->siguiente;
+            for(int i = 0; i<index; i++){
+                temp = temp->siguiente;
+            }
+            return temp->dato;
+        }
+    
+    void pop(){
+        Nodo *temp;
+        int tempPrioridad;
+        float*** tempDato;
+        
+        temp = cabeza;
+        tempDato = temp->dato;
+        tempPrioridad = temp->prioridad;
+        
+        cabeza = cabeza->siguiente;
+        //delete temp;
+        tamano=tamano-1;
+            }
+};
 
 GeneticAlgorithm::GeneticAlgorithm(int populationSize,float elitismRatio,float mutationRatio,float sporadicRatio){
     GeneticAlgorithm::populationSize = populationSize;
@@ -21,10 +119,217 @@ void GeneticAlgorithm::reset(int populationSize,float elitismRatio,float mutatio
 }
 
 class TravellingSalesman : public GeneticAlgorithm{
+    private:
+        int citiesQuantity;
+        float** cities;
+    public:
+        TravellingSalesman(float matrix[][2],int citiesQ,int populationSize,float elitismRatio,float mutationRatio,float sporadicRatio) : GeneticAlgorithm(populationSize, elitismRatio, mutationRatio, sporadicRatio){
+            citiesQuantity = citiesQ;
+            cities = new float*[citiesQuantity];
+            for(int i = 0; i < citiesQuantity; i++){
+                cities[i] = new float [2];
+                for(int j = 0; j < 2; j++){
+                    cities[i][j] = matrix[i][j];
+                }
+            }
+            for(int i = 0; i < citiesQuantity; i++){
+                for(int j = 0; j < 2; j++){
+                    std::cout << cities[i][j] << " ";
+                }
+                std::cout << std::endl;
+            }
+            solutions();
+        }
+        ~TravellingSalesman(){
+            for(int i = 0; i < citiesQuantity; i++){
+                delete[] cities[i];
+            }
+            delete[] cities;
+        }
+        void reset(int populationSize,float elitismRatio,float mutationRatio,float sporadicRatio){
+            GeneticAlgorithm::reset(populationSize, elitismRatio, mutationRatio, sporadicRatio);
+        }
+        void epoch(){
+            
+        }
+        float getBestIndividual(){
+            return 1;
+        }
+        void drawBestIndividual(float** points,unsigned int &numPoints){
+            
+        }
+        void solutions(){
+            int randNum = 0;
+            float temp = 0;
+            float*** individuals = new float**[populationSize];
+            for(int i = 0; i < populationSize; i++){
+                individuals[i] = new float*[citiesQuantity];
+                for(int j = 0; j < citiesQuantity; j++){
+                    individuals[i][j] = new float [2];
+                }
+            }
+            for(int i = 0; i < populationSize; i++){
+                for(int j = 0; j < citiesQuantity; j++){
+                    for(int k = 0; k < 2; k++){
+                        individuals[i][j][k] = cities[j][k];
+                    }
+                }
+            }
+            for(int i = 0; i < populationSize; i++){
+                for(int j = 1; j < citiesQuantity; j++){
+                    randNum = rand()%(citiesQuantity-1) + 1;
+                    for(int k = 0; k < 2; k++){
+                        temp = individuals[i][j][k];
+                        individuals[i][j][k] = individuals[i][randNum][k];
+                        individuals[i][randNum][k] = temp;
+                    }
+                }
+            }
+            for(int i = 0; i < populationSize; i++){
+                std::cout <<"induvidual "<< i << std::endl;
+                std::cout << individuals[i][0][0] << " " << individuals[i][0][1] << std::endl;
+                for(int j = 1; j < citiesQuantity; j++){
+                    for(int k = 0; k < 2; k++){
+                        std::cout << individuals[i][j][k] << " ";
+                    }
+                std::cout << std::endl;
+                }
+            }
+            fitness(individuals);
+        }
+    Cola* lista = new Cola();
+    void fitness(float*** matriz){
+        
+        while (lista->getTamano() > 0) {
+            lista->pop();
+        }
+        
+           float coorX;
+           float coorY;
+           float funcionX;
+           float funcionY;
+           
+        
+        for (int p=0; p<populationSize; p++) {
+            float recorrido = 0.0;
+            float*** punteroIndiv = &matriz[p];
+            std::cout<< "puntero: "<< punteroIndiv;
+            std::cout << std::endl;
+            
+            float ciudadUnoX = matriz[p][0][0];
+            float ciudadUnoY = matriz[p][0][1];
+            for (int x=1; x<=citiesQuantity; x++) {
+               if (x==citiesQuantity) {
+                   coorY = matriz[p][0][1];
+                   coorX = matriz[p][0][0];
+                   
+                   funcionX = pow((coorX-ciudadUnoX), 2);
+                   funcionY = pow ((coorY-ciudadUnoY), 2);
+                   recorrido = recorrido + sqrt(funcionX+funcionY);
+                   std::cout<<"recorrido: "<<recorrido;
+                   std::cout << std::endl;
+                   
+                   lista->push(punteroIndiv, recorrido);
+               }else{
+               
+               coorX = matriz[p][x][0];
+               coorY = matriz[p][x][1];
+               
+               funcionX = pow((coorX-ciudadUnoX), 2);
+               funcionY = pow ((coorY-ciudadUnoY), 2);
+               recorrido = recorrido + sqrt(funcionX+funcionY);
+               
+               ciudadUnoY = coorY;
+               ciudadUnoX = coorX;
+               }
+           }
+       }
+    }
     
+        void selection(){
+            int randomUno = rand()%101;
+            int randomDos =0;
+            
+            
+            if (randomUno >= 35) {
+                randomDos = rand()%10;
+            } else if (35< randomUno && randomUno<=55){
+                randomDos =10+rand()%(20-10);
+            } else if (55< randomUno && randomUno<=71){
+                randomDos =20+rand()%(30-20);
+            }else if (71< randomUno && randomUno<=79){
+                randomDos =30+rand()%(40-30);
+            } else if(79< randomUno && randomUno<=85){
+                randomDos =40+rand()%(50-40);
+            } else if(85< randomUno && randomUno<=90){
+                randomDos =50+rand()%(60-50);
+            } else if(90< randomUno && randomUno<=94){
+                randomDos =60+rand()%(70-60);
+            }else if (94< randomUno && randomUno<=97){
+                randomDos =70+rand()%(80-70);
+            }else if(97< randomUno && randomUno<=99){
+                randomDos =80+rand()%(90-80);
+            } else if(99< randomUno && randomUno<=100){
+                randomDos =90+rand()%(100-90);
+            }
+            int randomTres = rand()%101;
+            int randomCuatro =0;
+            
+            
+            if (randomTres >= 35) {
+                randomCuatro = rand()%10;
+            } else if (35< randomTres && randomTres<=55){
+                randomCuatro =10+rand()%(20-10);
+            } else if (55< randomTres && randomTres<=71){
+                randomCuatro =20+rand()%(30-20);
+            }else if (71< randomTres && randomTres<=79){
+                randomCuatro =30+rand()%(40-30);
+            } else if(79< randomTres && randomTres<=85){
+                randomCuatro =40+rand()%(50-40);
+            } else if(85< randomTres && randomTres<=90){
+                randomCuatro =50+rand()%(60-50);
+            } else if(90< randomTres && randomTres<=94){
+                randomCuatro =60+rand()%(70-60);
+            }else if (94< randomTres && randomTres<=97){
+                randomCuatro =70+rand()%(80-70);
+            }else if(97< randomTres && randomTres<=99){
+                randomCuatro =80+rand()%(90-80);
+            } else if(99< randomTres && randomTres<=100){
+                randomCuatro =90+rand()%(100-90);
+            }
+            
+            float*** padre = lista->get(randomTres);
+            std::cout<< "Padre: "<< padre;
+            std::cout << std::endl;
+            float*** madre = lista->get(randomCuatro);
+            std::cout<< "Madre: "<< madre;
+            std::cout << std::endl;
+        }
+        void crossover(){}
+        void mutation(){}
+
 };
 
-main(){
+int main(){
+    float caseLAU15[15][2] = {
+    {0.0,        0.0},
+    {-28.8733,    0.0},
+    {-79.2916,    -21.4033},
+    {-14.6577,    -43.3896},
+    {-64.7473,     21.8982},
+    {-29.0585,    -43.2167},
+    {-72.0785,    0.181581},
+    {-36.0366,    -21.6135},
+    {-50.4808,     7.37447},
+    {-50.5859,    -21.5882},
+    {-0.135819,    -28.7293},
+    {-65.0866,    -36.0625},
+    {-21.4983,     7.31942},
+    {-57.5687,    -43.2506},
+    {-43.0700,     14.5548}
+    };
+    int citiesQ = sizeof(caseLAU15)/sizeof(caseLAU15[0]);
+    TravellingSalesman* travellingSalesman = new TravellingSalesman(caseLAU15,citiesQ,100,2.0f,3.0f,4.0f);
     char c;
     std::cin >> c;
     return 0;
