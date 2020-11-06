@@ -271,10 +271,9 @@ class TravellingSalesman : public GeneticAlgorithm{
                 }
             }
         }
-        void selection(){
+        float*** selection(){
             int randomUno = rand()%101;
             int randomDos =0;
-            
             
             if (randomUno >= 35) {
                 randomDos = rand()%10;
@@ -297,38 +296,25 @@ class TravellingSalesman : public GeneticAlgorithm{
             } else if(99< randomUno && randomUno<=100){
                 randomDos =90+rand()%(100-90);
             }
-            int randomTres = rand()%101;
-            int randomCuatro =0;
+
             
+            float*** padre = lista->get(randomDos);
+            std::cout<< "Padre: "<< padre << std::endl;
+            return padre;
+        }
+    
+    
+    
+        void crossover(){
+            float*** padre;
+            float*** madre;
             
-            if (randomTres >= 35) {
-                randomCuatro = rand()%10;
-            } else if (35< randomTres && randomTres<=55){
-                randomCuatro =10+rand()%(20-10);
-            } else if (55< randomTres && randomTres<=71){
-                randomCuatro =20+rand()%(30-20);
-            }else if (71< randomTres && randomTres<=79){
-                randomCuatro =30+rand()%(40-30);
-            } else if(79< randomTres && randomTres<=85){
-                randomCuatro =40+rand()%(50-40);
-            } else if(85< randomTres && randomTres<=90){
-                randomCuatro =50+rand()%(60-50);
-            } else if(90< randomTres && randomTres<=94){
-                randomCuatro =60+rand()%(70-60);
-            }else if (94< randomTres && randomTres<=97){
-                randomCuatro =70+rand()%(80-70);
-            }else if(97< randomTres && randomTres<=99){
-                randomCuatro =80+rand()%(90-80);
-            } else if(99< randomTres && randomTres<=100){
-                randomCuatro =90+rand()%(100-90);
+            for (int i= elitismRatio; i < lista->getTamano(); i++) {
+                padre = selection();
+                madre = selection();
             }
             
-            float*** padre = lista->get(randomTres);
-            std::cout<< "Padre: "<< padre << std::endl;
-            float*** madre = lista->get(randomCuatro);
-            std::cout<< "Madre: "<< madre << std::endl;
         }
-        void crossover(){}
         void mutation(){}
 
 };
