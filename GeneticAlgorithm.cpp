@@ -191,8 +191,7 @@ class TravellingSalesman : public GeneticAlgorithm{
         void epoch(){
             randomSolutions(sporadicRatio, newGen);
             elitism();
-            
-            //selection,crossover,mutation
+            crossover();
             mutation(26);
             for(int i = 0; i < populationSize; i++){
                 std::cout << "induvidual " << i << std::endl;
@@ -203,7 +202,6 @@ class TravellingSalesman : public GeneticAlgorithm{
                     std::cout << std::endl;
                 }
             }
-            //selection();
         }
         float getBestIndividual(){
             return lista->getPrioridad(0);;
@@ -292,6 +290,69 @@ class TravellingSalesman : public GeneticAlgorithm{
                 }
             }
         }
+        void crossover(){
+            float*** father;
+            float*** mother;
+            int randomCut1, randomCut2;
+            for (int i = sporadicRatio+elitismRatio; i < populationSize-1; i++) {
+                randomCut1 = 0;
+                randomCut2 = 0;
+                father = selection();
+                mother = selection();
+                std::cout << "father " << std::endl;
+                for(int j = 0; j < citiesQuantity; j++){
+                    for(int k = 0; k < 2; k++){
+                        std::cout << father[0][j][k] << " ";
+                    }
+                    std::cout << std::endl;
+                }
+                std::cout << "mother " << std::endl;
+                for(int j = 0; j < citiesQuantity; j++){
+                    for(int k = 0; k < 2; k++){
+                        std::cout << mother[0][j][k] << " ";
+                    }
+                    std::cout << std::endl;
+                }
+                while(randomCut1 >= randomCut2){
+                    randomCut1 = rand()%(citiesQuantity-1) + 1;
+                    randomCut2 = rand()%(citiesQuantity-1) + 1;
+                }
+                std::cout << "start cut " << randomCut1 << std::endl;
+                std::cout << "end cut " << randomCut2 << std::endl;
+                for(int j = randomCut1 ; j < randomCut2; j++){
+                    for(int k = 0 ; k < 2; k++){
+                        newGen[i][j][k] = mother[0][j][k];
+                        newGen[i+1][j][k] = father[0][j][k];
+                        std::cout << newGen[i][j][k] << " ";
+                    }    
+                    std::cout << std::endl << std::endl;
+                }
+                for(int j = 1 ; j < randomCut1; j++){
+                    searchDuplicates(i,j,j,randomCut1,randomCut2,father);
+                    searchDuplicates(i+1,j,j,randomCut1,randomCut2,mother);
+                }
+                for(int j = randomCut2 ; j < citiesQuantity; j++){
+                    searchDuplicates(i,j,j,randomCut1,randomCut2,father);
+                    searchDuplicates(i+1,j,j,randomCut1,randomCut2,mother);
+                }
+                std::cout << "hijo " << i << std::endl;
+                for(int j = 0; j < citiesQuantity; j++){
+                    for(int k = 0; k < 2; k++){
+                        std::cout << newGen[i][j][k] << " ";
+                    }
+                    std::cout << std::endl;
+                }
+                i++;
+                std::cout << "hijo " << i << std::endl;
+                for(int j = 0; j < citiesQuantity; j++){
+                    for(int k = 0; k < 2; k++){
+                        std::cout << newGen[i][j][k] << " ";
+                    }
+                    std::cout << std::endl;
+                }
+            }
+            
+        }
         float*** selection(){
             int randomUno = rand()%101;
             int randomDos =0;
@@ -320,22 +381,18 @@ class TravellingSalesman : public GeneticAlgorithm{
 
             
             float*** padre = lista->get(randomDos);
-            std::cout<< "Padre: "<< padre << std::endl;
             return padre;
         }
-    
-    
-    
-        void crossover(){
-            int index = elitismRatio + sporadicRatio;
-            float*** padre;
-            float*** madre;
-            
-            for (int i= index; i < lista->getTamano(); i++) {
-                padre = selection();
-                madre = selection();
+        void searchDuplicates(int i,int j,int m,int startCut,int endCut,float*** parent){
+            for(int k = startCut ; k < endCut; k++){
+                if(parent[0][m][0] != newGen[i][k][0] && parent[0][m][1] != newGen[i][k][1]){
+                    newGen[i][j][0] = parent[0][m][0];
+                    newGen[i][j][1] = parent[0][m][1];
+                }else{
+                    searchDuplicates(i,j,k,startCut,endCut,parent);
+                    break;
+                }
             }
-            
         }
         void mutation(int individual){
             int probabilidad = mutationRatio;
@@ -385,8 +442,10 @@ int main(){
     };
     int citiesQ = sizeof(matrix)/sizeof(matrix[0]);
     TravellingSalesman* travellingSalesman = new TravellingSalesman(matrix,citiesQ,100,15.0f,30.0f,10.0f);
-    travellingSalesman->epoch();
-    std::cout<<travellingSalesman->getBestIndividual();
+    for(int i = 0;i < 10;i++){
+        travellingSalesman->epoch();
+        std::cout<<travellingSalesman->getBestIndividual();
+    }
     char c;
     std::cin >> c;
     return 0;
