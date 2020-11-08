@@ -192,19 +192,22 @@ class TravellingSalesman : public GeneticAlgorithm{
             randomSolutions(sporadicRatio, newGen);
             elitism();
             crossover();
-            mutation(26);
             for(int i = 0; i < populationSize; i++){
-                std::cout << "induvidual " << i << std::endl;
+                //std::cout<<"individual "<<i<<std::endl;
                 for(int j = 0; j < citiesQuantity; j++){
                     for(int k = 0; k < 2; k++){
-                        std::cout << newGen[i][j][k] << " ";
+                        individuals[i][j][k] = newGen[i][j][k];
+                        //std::cout<<newGen[i][j][k]<<" ";
                     }
-                    std::cout << std::endl;
+                    //std::cout<<std::endl;
                 }
             }
+            fitness(individuals);
+            std::cout<<getBestIndividual()<<std::endl;
+            currentEpoch++;
         }
         float getBestIndividual(){
-            return lista->getPrioridad(0);;
+            return lista->getPrioridad(0);
         }
         void drawBestIndividual(float** points,unsigned int &numPoints){
             numPoints = citiesQuantity;
@@ -236,7 +239,6 @@ class TravellingSalesman : public GeneticAlgorithm{
             }
         }
         void fitness(float*** matriz){
-            
             while (lista->getTamano() > 0) {
                 lista->pop();
             }
@@ -299,33 +301,15 @@ class TravellingSalesman : public GeneticAlgorithm{
                 randomCut2 = 0;
                 father = selection();
                 mother = selection();
-                std::cout << "father " << std::endl;
-                for(int j = 0; j < citiesQuantity; j++){
-                    for(int k = 0; k < 2; k++){
-                        std::cout << father[0][j][k] << " ";
-                    }
-                    std::cout << std::endl;
-                }
-                std::cout << "mother " << std::endl;
-                for(int j = 0; j < citiesQuantity; j++){
-                    for(int k = 0; k < 2; k++){
-                        std::cout << mother[0][j][k] << " ";
-                    }
-                    std::cout << std::endl;
-                }
                 while(randomCut1 >= randomCut2){
                     randomCut1 = rand()%(citiesQuantity-1) + 1;
                     randomCut2 = rand()%(citiesQuantity-1) + 1;
                 }
-                std::cout << "start cut " << randomCut1 << std::endl;
-                std::cout << "end cut " << randomCut2 << std::endl;
                 for(int j = randomCut1 ; j < randomCut2; j++){
                     for(int k = 0 ; k < 2; k++){
                         newGen[i][j][k] = mother[0][j][k];
                         newGen[i+1][j][k] = father[0][j][k];
-                        std::cout << newGen[i][j][k] << " ";
-                    }    
-                    std::cout << std::endl << std::endl;
+                    }
                 }
                 for(int j = 1 ; j < randomCut1; j++){
                     searchDuplicates(i,j,j,randomCut1,randomCut2,father);
@@ -335,21 +319,8 @@ class TravellingSalesman : public GeneticAlgorithm{
                     searchDuplicates(i,j,j,randomCut1,randomCut2,father);
                     searchDuplicates(i+1,j,j,randomCut1,randomCut2,mother);
                 }
-                std::cout << "hijo " << i << std::endl;
-                for(int j = 0; j < citiesQuantity; j++){
-                    for(int k = 0; k < 2; k++){
-                        std::cout << newGen[i][j][k] << " ";
-                    }
-                    std::cout << std::endl;
-                }
+                mutation(i);
                 i++;
-                std::cout << "hijo " << i << std::endl;
-                for(int j = 0; j < citiesQuantity; j++){
-                    for(int k = 0; k < 2; k++){
-                        std::cout << newGen[i][j][k] << " ";
-                    }
-                    std::cout << std::endl;
-                }
             }
             
         }
@@ -398,17 +369,16 @@ class TravellingSalesman : public GeneticAlgorithm{
             int probabilidad = mutationRatio;
             int random = rand()%101;
             
-            int ciudadUno= 1+rand()%((citiesQuantity+1)-1);
-            int ciudadDos= 1+rand()%((citiesQuantity+1)-1);
+            int ciudadUno= rand()%(citiesQuantity-1) + 1;
+            int ciudadDos= rand()%(citiesQuantity-1) + 1;
             
             while (ciudadUno == ciudadDos) {
-                ciudadDos= 1+rand()%((citiesQuantity+1)-1);
+                ciudadDos= rand()%(citiesQuantity-1) + 1;
             }
             
             if (random < probabilidad) {
                 float coorUnoX= newGen[individual][ciudadUno][0];
                 float coorUnoY= newGen[individual][ciudadUno][1];
-                
                 
                 newGen[individual][ciudadUno][0] = newGen[individual][ciudadDos][0];;
                 newGen[individual][ciudadUno][1] = newGen[individual][ciudadDos][1];;
@@ -441,11 +411,9 @@ int main(){
     {-43.0700,     14.5548}
     };
     int citiesQ = sizeof(matrix)/sizeof(matrix[0]);
-    TravellingSalesman* travellingSalesman = new TravellingSalesman(matrix,citiesQ,100,15.0f,30.0f,10.0f);
-    for(int i = 0;i < 10;i++){
+    TravellingSalesman* travellingSalesman = new TravellingSalesman(matrix,citiesQ,100,15.0f,40.0f,10.0f);
+    for(int i = 0;i < 100;i++)
         travellingSalesman->epoch();
-        std::cout<<travellingSalesman->getBestIndividual();
-    }
     char c;
     std::cin >> c;
     return 0;
