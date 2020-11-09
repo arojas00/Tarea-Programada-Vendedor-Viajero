@@ -191,7 +191,7 @@ class TravellingSalesman : public GeneticAlgorithm{
         void epoch(){
             randomSolutions(sporadicRatio, newGen);
             elitism();
-            crossover();
+            crossover2();
             for(int i = 0; i < populationSize; i++){
                 //std::cout<<"individual "<<i<<std::endl;
                 for(int j = 0; j < citiesQuantity; j++){
@@ -324,6 +324,40 @@ class TravellingSalesman : public GeneticAlgorithm{
             }
             
         }
+        void crossover2(){
+            float*** father;
+            float*** mother;
+            for (int i = sporadicRatio+elitismRatio; i < populationSize-1; i++){
+                do{
+                    father = selection();
+                    mother = selection();
+                }while(father == mother);
+                int j = 1;
+                searchCity(mother[0][j][0],mother[0][j][1],i,j,father,mother);
+            }
+            
+        }
+        void searchCity(float cityX,float cityY,int i,int j,float*** father,float*** mother){
+            newGen[i][j][0] = cityX;
+            newGen[i][j][1] = cityY;
+            for(int k = 1;k < citiesQuantity;k++){
+                if(newGen[i][j][0]==father[0][k][0]&&newGen[i][j][1]==father[0][k][1]){
+                    for(int m = 1;m < citiesQuantity;m++){
+                        if(mother[0][k][0]==father[0][m][0]&&mother[0][k][1]==father[0][m][1]){
+                            newGen[i+1][j][0] = mother[0][m][0];
+                            newGen[i+1][j][1] = mother[0][m][1];
+                            if(j+1 < citiesQuantity){
+                                for(int p = 1;p < citiesQuantity;p++){
+                                    if(mother[0][m][0]==father[0][p][0]&&mother[0][m][1]==father[0][p][1]){
+                                        searchCity(mother[0][p][0],mother[0][p][1],i,j+1,father,mother);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         float*** selection(){
             int randomUno = rand()%101;
             int randomDos =0;
@@ -365,16 +399,16 @@ class TravellingSalesman : public GeneticAlgorithm{
                 }
             }
         }
-    void swap(int individual, int ciudadUno, int ciudadDos){
-        float coorUnoX= newGen[individual][ciudadUno][0];
-        float coorUnoY= newGen[individual][ciudadUno][1];
-        
-        newGen[individual][ciudadUno][0] = newGen[individual][ciudadDos][0];;
-        newGen[individual][ciudadUno][1] = newGen[individual][ciudadDos][1];;
-        
-        newGen[individual][ciudadDos][0] = coorUnoX;
-        newGen[individual][ciudadDos][1] = coorUnoY;
-    }
+        void swap(int individual, int ciudadUno, int ciudadDos){
+            float coorUnoX= newGen[individual][ciudadUno][0];
+            float coorUnoY= newGen[individual][ciudadUno][1];
+            
+            newGen[individual][ciudadUno][0] = newGen[individual][ciudadDos][0];;
+            newGen[individual][ciudadUno][1] = newGen[individual][ciudadDos][1];;
+            
+            newGen[individual][ciudadDos][0] = coorUnoX;
+            newGen[individual][ciudadDos][1] = coorUnoY;
+        }
     
         void mutation(int individual){
             int probabilidad = mutationRatio;
@@ -436,7 +470,7 @@ int main(){
     {-43.0700,     14.5548}
     };
     int citiesQ = sizeof(matrix)/sizeof(matrix[0]);
-    TravellingSalesman* travellingSalesman = new TravellingSalesman(matrix,citiesQ,100,10.0f,60.0f,15.0f);
+    TravellingSalesman* travellingSalesman = new TravellingSalesman(matrix,citiesQ,100,5.0f,60.0f,10.0f);
     for(int i = 0;i < 100;i++)
         travellingSalesman->epoch();
     char c;
