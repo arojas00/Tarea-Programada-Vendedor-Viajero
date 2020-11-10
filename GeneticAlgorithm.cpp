@@ -1,4 +1,4 @@
-// Tarea programada 2 - Genetic Algorithm TSP - Javier Donato - Adrian Rojas
+// Tarea programada 2 - Genetic Algorithm TSP - Javier Donato - Adrian Rojas - B96789
 
 #include <iostream>
 #include <cstdlib>
