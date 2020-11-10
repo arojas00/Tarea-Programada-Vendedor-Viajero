@@ -204,6 +204,16 @@ class TravellingSalesman : public GeneticAlgorithm{
             }
             fitness(individuals);
             currentEpoch++;
+//            float*** best = lista->get(0);
+//            std::cout << "epoch " << currentEpoch << std::endl;
+//            for(int n = 0; n < citiesQuantity; n++){
+//                for(int w = 0; w < 2; w++){
+//                    std::cout << best[0][n][w] << " ";
+//                }
+//                std::cout << std::endl;
+//            }
+
+
         }
         float getBestIndividual(){
             return lista->getPrioridad(0);
@@ -373,7 +383,7 @@ class TravellingSalesman : public GeneticAlgorithm{
                 }
             }
         }
-        // algoritmo utilizado para el crossover, usa un segmento de un padre y sigue el orden del otro padre para completarse
+        // algoritmo implementado para el crossover, usa un segmento de un padre y sigue el orden del otro padre para completarse
         void orderCrossover(){
             float*** father;
             float*** mother;
@@ -396,7 +406,7 @@ class TravellingSalesman : public GeneticAlgorithm{
                 mutation(i);
             }
         }
-        // completa el resto del hijo con el orden del tro padre
+        // completa el resto del hijo con el orden del otro padre
         void followSequence(int i,float*** parentOne,float*** parentTwo,int randomStart, int randomEnd){
             int index;
             for(int j = randomStart ; j < randomEnd; j++){
@@ -407,12 +417,12 @@ class TravellingSalesman : public GeneticAlgorithm{
             index = randomEnd;
             for(int j = randomEnd ; j < citiesQuantity; j++){
                 for(int k = randomStart ; k < randomEnd; k++){
-                    if(parentTwo[0][j][0] != parentOne[0][k][0] && parentTwo[0][j][1] != parentOne[0][k][1]){
-                        newGen[i][index][0] = parentTwo[0][j][0];
-                        newGen[i][index][1] = parentTwo[0][j][1];
-                    }else{
+                    if(parentTwo[0][j][0] == parentOne[0][k][0] && parentTwo[0][j][1] == parentOne[0][k][1]){
                         index--;
                         break;
+                    }else{
+                        newGen[i][index][0] = parentTwo[0][j][0];
+                        newGen[i][index][1] = parentTwo[0][j][1];
                     }
                 }
                 if(index+1 < citiesQuantity){
@@ -424,12 +434,12 @@ class TravellingSalesman : public GeneticAlgorithm{
             for(int j = 1 ; j < randomEnd; j++){
                 if(index!=randomStart){
                     for(int k = randomStart ; k < randomEnd; k++){
-                        if(parentTwo[0][j][0] != parentOne[0][k][0] && parentTwo[0][j][1] != parentOne[0][k][1]){
-                            newGen[i][index][0] = parentTwo[0][j][0];
-                            newGen[i][index][1] = parentTwo[0][j][1];
-                        }else{
+                        if(parentTwo[0][j][0] == parentOne[0][k][0] && parentTwo[0][j][1] == parentOne[0][k][1]){
                             index--;
                             break;
+                        }else{
+                            newGen[i][index][0] = parentTwo[0][j][0];
+                            newGen[i][index][1] = parentTwo[0][j][1];
                         }
                     }
                     if(index+1 < citiesQuantity){
@@ -523,39 +533,50 @@ class TravellingSalesman : public GeneticAlgorithm{
 };
 
 int main(){
-    //caseLAU15 caseWG59 caseSGB128 caseUSCA312
     int citiesQ = 0, index = 0;
     citiesQ = sizeof(caseLAU15)/sizeof(caseLAU15[0]);
     TravellingSalesman* travellingSalesman1 = new TravellingSalesman(caseLAU15,citiesQ,200,10.0f,60.0f,10.0f);
+    std::cout << "Ejecutando epocas... " <<  std::endl;
     while(travellingSalesman1->getBestIndividual() > 284.38 ){
+    //for(int i = 0; i < 10000; i++){
         travellingSalesman1->epoch();
         index++;
     }
-    std::cout << "caso 1: solucion optima en generacion " << index << " (" << travellingSalesman1->getBestIndividual() << ")" << std::endl;
+    std::cout << "Caso 1: fitness en generacion " << index << " (" << travellingSalesman1->getBestIndividual() << ")" << std::endl;
+
     citiesQ = sizeof(caseWG59)/sizeof(caseWG59[0]);
-    TravellingSalesman* travellingSalesman2 = new TravellingSalesman(caseWG59,citiesQ,200,10.0f,60.0f,10.0f);
+    TravellingSalesman* travellingSalesman2 = new TravellingSalesman(caseWG59,citiesQ,200,5.0f,60.0f,10.0f);
     index = 0;
-    while(travellingSalesman2->getBestIndividual() > 1034.63){
+    std::cout << "Ejecutando epocas... " <<  std::endl;
+    while(travellingSalesman2->getBestIndividual() > 1300){
+    //for(int i = 0; i <10000; i++){
         travellingSalesman2->epoch();
         index++;
     }
-    std::cout << "caso 2: solucion optima en generacion " << index << " (" << travellingSalesman2->getBestIndividual() << ")" << std::endl;
+    std::cout << "Caso 2: fitness en generacion " << index << " (" << travellingSalesman2->getBestIndividual() << ")" << std::endl;
+
+
     citiesQ = sizeof(caseSGB128)/sizeof(caseSGB128[0]);
     TravellingSalesman* travellingSalesman3 = new TravellingSalesman(caseSGB128,citiesQ,200,10.0f,60.0f,10.0f);
     index = 0;
-    while(travellingSalesman3->getBestIndividual() > 18642.29){
+    std::cout << "Ejecutando epocas... " <<  std::endl;
+    while(travellingSalesman3->getBestIndividual() > 23000){
+    //for(int i = 0; i <10000; i++){
         travellingSalesman3->epoch();
         index++;
     }
-    std::cout << "caso 3: solucion optima en generacion " << index << " (" << travellingSalesman3->getBestIndividual() << ")" << std::endl;
-    citiesQ = sizeof(caseUSCA312)/sizeof(caseUSCA312[0]);
-    TravellingSalesman* travellingSalesman4 = new TravellingSalesman(caseUSCA312,citiesQ,200,10.0f,60.0f,10.0f);
-    index = 0;
-    while(travellingSalesman4->getBestIndividual() > 49362.89){
-        travellingSalesman4->epoch();
-        index++;
-    }
-    std::cout << "caso 4: solucion optima en generacion " << index << " (" << travellingSalesman4->getBestIndividual() << ")" << std::endl;
+    std::cout << "caso 3: fitness en generacion " << index << " (" << travellingSalesman3->getBestIndividual() << ")" << std::endl;
+
+//    citiesQ = sizeof(caseUSCA312)/sizeof(caseUSCA312[0]);
+//    TravellingSalesman* travellingSalesman4 = new TravellingSalesman(caseUSCA312,citiesQ,200,10.0f,60.0f,10.0f);
+//    index = 0;
+//    std::cout << "Ejecutando epocas... " <<  std::endl;
+//    for(int i = 0; i <10000; i++){
+//        travellingSalesman4->epoch();
+//        index++;
+//    }
+//    std::cout << "caso 4: fitness en generacion " << index << " (" << travellingSalesman4->getBestIndividual() << ")" << std::endl;
+    std::cout << "Finalizado";
     char c;
     std::cin >> c;
     return 0;
